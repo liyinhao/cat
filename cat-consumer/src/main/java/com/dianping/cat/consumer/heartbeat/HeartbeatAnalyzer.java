@@ -1,15 +1,5 @@
 package com.dianping.cat.consumer.heartbeat;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.codehaus.plexus.logging.LogEnabled;
-import org.codehaus.plexus.logging.Logger;
-import org.unidal.helper.Objects;
-import org.unidal.lookup.annotation.Inject;
-
 import com.dianping.cat.Cat;
 import com.dianping.cat.analysis.AbstractMessageAnalyzer;
 import com.dianping.cat.config.server.ServerFilterConfigManager;
@@ -20,17 +10,18 @@ import com.dianping.cat.message.Heartbeat;
 import com.dianping.cat.message.Message;
 import com.dianping.cat.message.Transaction;
 import com.dianping.cat.message.spi.MessageTree;
-import com.dianping.cat.report.ReportManager;
 import com.dianping.cat.report.DefaultReportManager.StoragePolicy;
-import com.dianping.cat.status.model.entity.DiskVolumeInfo;
-import com.dianping.cat.status.model.entity.Extension;
-import com.dianping.cat.status.model.entity.ExtensionDetail;
-import com.dianping.cat.status.model.entity.GcInfo;
-import com.dianping.cat.status.model.entity.MemoryInfo;
-import com.dianping.cat.status.model.entity.MessageInfo;
-import com.dianping.cat.status.model.entity.OsInfo;
-import com.dianping.cat.status.model.entity.StatusInfo;
-import com.dianping.cat.status.model.entity.ThreadsInfo;
+import com.dianping.cat.report.ReportManager;
+import com.dianping.cat.status.model.entity.*;
+import org.codehaus.plexus.logging.LogEnabled;
+import org.codehaus.plexus.logging.Logger;
+import org.unidal.lookup.annotation.Inject;
+
+import java.net.URI;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class HeartbeatAnalyzer extends AbstractMessageAnalyzer<HeartbeatReport> implements LogEnabled {
 	public static final String ID = "heartbeat";
@@ -69,7 +60,8 @@ public class HeartbeatAnalyzer extends AbstractMessageAnalyzer<HeartbeatReport> 
 				for (Entry<String, ExtensionDetail> detail : details.entrySet()) {
 					ExtensionDetail extensionDetail = detail.getValue();
 
-					extension.findOrCreateDetail(extensionDetail.getId()).setValue(extensionDetail.getValue());
+					extension.findOrCreateDetail(extensionDetail.getId()).setValue(extensionDetail.getValue())
+								.setDescription(extensionDetail.getDescription());
 				}
 			}
 			return period;
@@ -190,8 +182,17 @@ public class HeartbeatAnalyzer extends AbstractMessageAnalyzer<HeartbeatReport> 
 				gc.findOrCreateExtensionDetail("ConcurrentMarkSweepTime").setValue(oldGc.getTime());
 			}
 
+			Extension disk = info.findOrCreateExtension("Disk");
+			List<DiskVolumeInfo> diskVolumes = info.getDisk().getDiskVolumes();
+
+			for (DiskVolumeInfo vinfo : diskVolumes) {
+				disk.findOrCreateExtensionDetail(vinfo.getId() + " Free").setValue(vinfo.getFree());
+			}
+		}
+
+		ThreadsInfo threadInfo = info.getThread();
+		if (threadInfo != null){
 			Extension thread = info.findOrCreateExtension("FrameworkThread");
-			ThreadsInfo threadInfo = info.getThread();
 
 			thread.findOrCreateExtensionDetail("HttpThread").setValue(threadInfo.getHttpThreadCount());
 			thread.findOrCreateExtensionDetail("CatThread").setValue(threadInfo.getCatThreadCount());
@@ -199,12 +200,39 @@ public class HeartbeatAnalyzer extends AbstractMessageAnalyzer<HeartbeatReport> 
 			thread.findOrCreateExtensionDetail("ActiveThread").setValue(threadInfo.getCount());
 			thread.findOrCreateExtensionDetail("StartedThread").setValue(threadInfo.getTotalStartedCount());
 
-			Extension disk = info.findOrCreateExtension("Disk");
-			List<DiskVolumeInfo> diskVolumes = info.getDisk().getDiskVolumes();
+			List<DruidPoolInfo> druidPoolInfos = threadInfo.getDruidPools();
+			if (druidPoolInfos != null && druidPoolInfos.size() > 0){
+				for (DruidPoolInfo druidPoolInfo : druidPoolInfos) {
 
-			for (DiskVolumeInfo vinfo : diskVolumes) {
-				disk.findOrCreateExtensionDetail(vinfo.getId() + " Free").setValue(vinfo.getFree());
+					String url = druidPoolInfo.getUrl();
+					try {
+						if (url.startsWith("jdbc:")){
+							url = url.substring(5);
+						}
+						if (url.indexOf("?") > 0){
+							url = url.substring(0, url.indexOf("?"));
+						}
+						String extensionId = "Druid: " + url;
+						String extensionDescription = druidPoolInfo.getUrl();
+						thread.findOrCreateExtensionDetail(extensionId).setValue(druidPoolInfo.getPoolingCount())
+								.setDescription(extensionDescription);
+					} catch (Exception e){
+						e.printStackTrace();
+						thread.findOrCreateExtensionDetail("Druid: " + druidPoolInfo.getName())
+								.setValue(druidPoolInfo.getPoolingCount())
+								.setDescription(druidPoolInfo.getUrl());
+					}
+				}
 			}
+
+			List<RedisPoolInfo> redisPoolInfos = threadInfo.getRedisPools();
+			if (redisPoolInfos != null && redisPoolInfos.size() > 0){
+				for (RedisPoolInfo redisPoolInfo : redisPoolInfos) {
+					thread.findOrCreateExtensionDetail("Redis: " + redisPoolInfo.getName())
+							.setValue(redisPoolInfo.getCount());
+				}
+			}
+
 		}
 
 		for (Extension ex : info.getExtensions().values()) {

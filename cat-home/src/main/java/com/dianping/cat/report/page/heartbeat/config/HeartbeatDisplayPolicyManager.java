@@ -103,10 +103,33 @@ public class HeartbeatDisplayPolicyManager implements Initializable {
 			Metric metric = group.findMetric(metricName);
 
 			if (metric != null) {
+				if (metric.getLable() == null){
+					metric.setLable(group.getLable());
+				}
 				return metric;
 			}
 		}
 		return null;
+	}
+
+	public String queryMetricLable(String groupName, String metricName){
+		String result = null;
+
+		Group group = m_config.findGroup(groupName);
+
+		if (group != null) {
+			Metric metric = group.findMetric(metricName);
+
+			if (metric != null) {
+				result = metric.getLable();
+			}
+
+			if (result == null){
+				result = group.getLable();
+			}
+		}
+
+		return result;
 	}
 
 	public List<String> queryAlertMetrics() {

@@ -35,6 +35,8 @@ public interface GraphPayload {
 
 	public String getTitle();
 
+	public String getHint();
+
 	public double[] getValues();
 
 	public int getWidth();

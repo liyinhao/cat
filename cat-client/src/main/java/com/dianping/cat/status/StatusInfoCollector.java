@@ -267,15 +267,11 @@ public class StatusInfoCollector extends BaseVisitor {
         List<DruidPoolInfo> druidPoolInfos = getDruidPools();
         for (DruidPoolInfo druidPoolInfo : druidPoolInfos) {
             thread.addDruid(druidPoolInfo);
-            frameworkThread.findOrCreateExtensionDetail("Druid: " + druidPoolInfo.getName())
-                    .setValue(druidPoolInfo.getPoolingCount());
         }
 
         List<RedisPoolInfo> redisPoolInfos = getRedisPools();
         for (RedisPoolInfo redisPoolInfo : redisPoolInfos) {
             thread.addRedis(redisPoolInfo);
-            frameworkThread.findOrCreateExtensionDetail("Redis: " + redisPoolInfo.getName())
-                    .setValue(redisPoolInfo.getCount());
         }
 
         m_statusInfo.addExtension(frameworkThread);
@@ -289,10 +285,8 @@ public class StatusInfoCollector extends BaseVisitor {
 
         try {
 
-            JMXQuery jmxQuery = new JMXQuery();
-
-            String[] atts = {"Name", "Url", "PoolingCount", "PoolingPeak", "ActiveCount", "ActiveCount"};
-            List<Map<String, Object>> infos = jmxQuery.queryList("com.alibaba.druid", "DruidDataSource", atts);
+            String[] atts = {"Name", "Url", "PoolingCount", "PoolingPeak", "ActiveCount", "ActivePeak"};
+            List<Map<String, Object>> infos = JMXQuery.queryList("com.alibaba.druid", "DruidDataSource", atts);
 
             for (Map<String, Object> map : infos) {
 
@@ -303,7 +297,7 @@ public class StatusInfoCollector extends BaseVisitor {
                     druidPoolInfo.setPoolingCount((Integer) map.get("PoolingCount"));
                     druidPoolInfo.setPoolingPeak((Integer) map.get("PoolingPeak"));
                     druidPoolInfo.setActiveCount((Integer) map.get("ActiveCount"));
-                    druidPoolInfo.setActivePeak((Integer) map.get("ActiveCount"));
+                    druidPoolInfo.setActivePeak((Integer) map.get("ActivePeak"));
 
                     result.add(druidPoolInfo);
                 } catch (Exception e) {
@@ -323,11 +317,10 @@ public class StatusInfoCollector extends BaseVisitor {
 
         try {
 
-            JMXQuery jmxQuery = new JMXQuery();
             String[] atts = {"NumActive", "NumIdle", "FactoryType"};
 
             Map<String, Map<String, Object>> infos =
-                    jmxQuery.queryMap("org.apache.commons.pool2", "GenericObjectPool", atts);
+                    JMXQuery.queryMap("org.apache.commons.pool2", "GenericObjectPool", atts);
 
             for (Map.Entry<String, Map<String, Object>> entry : infos.entrySet()) {
 

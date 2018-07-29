@@ -8,7 +8,7 @@ abstract class AbstractPayload extends AbstractGraphPayload {
 	private final EventName m_name;
 
 	public AbstractPayload(String title, String axisXLabel, String axisYLabel, EventName name) {
-		super(title, axisXLabel, axisYLabel);
+		super(title, title, axisXLabel, axisYLabel);
 
 		m_name = name;
 	}

@@ -172,9 +172,10 @@ public class DefaultGraphBuilder implements GraphBuilder {
 		      payload.getDisplayHeight(), "viewBox", "0,0," + width + "," + height, "xmlns", "http://www.w3.org/2000/svg");
 
 		String title = payload.getTitle();
+		String hint = payload.getHint();
 
-		if (title != null) {
-			b.element("title", title);
+		if (hint != null) {
+			b.element("title", hint);
 		}
 
 		if (payload.getDescription() != null) {

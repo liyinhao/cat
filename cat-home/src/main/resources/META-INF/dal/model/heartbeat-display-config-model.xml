@@ -6,6 +6,7 @@
   <entity name="group">
     <attribute name="id" value-type="String" key="true" />
     <attribute name="order" value-type="int"  primitive="true" />
+    <attribute name="lable" value-type="String" />
     <entity-ref name="metric" type="map" names="metrics" />
   </entity>
   <entity name="metric">

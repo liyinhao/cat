@@ -47,6 +47,7 @@
   <entity name="detail">
     <attribute name="id" value-type="String" key="true"/>
     <attribute name="value" value-type="double" primitive="true"/>
+    <attribute name="description" value-type="String"/>
   </entity>
 </model>
 

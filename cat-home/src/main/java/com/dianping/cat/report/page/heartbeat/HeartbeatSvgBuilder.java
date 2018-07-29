@@ -13,8 +13,8 @@ public class HeartbeatSvgBuilder extends AbstractGraphPayload {
 
 	private double[] m_values;
 
-	public HeartbeatSvgBuilder(int index, String title, String axisXLabel, String axisYLabel, double[] values) {
-		super(title, axisXLabel, axisYLabel);
+	public HeartbeatSvgBuilder(int index, String title, String hint, String axisXLabel, String axisYLabel, double[] values) {
+		super(title, hint, axisXLabel, axisYLabel);
 
 		m_idPrefix = title;
 		m_index = index;

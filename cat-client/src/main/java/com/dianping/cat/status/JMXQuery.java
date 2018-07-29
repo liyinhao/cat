@@ -88,7 +88,7 @@ public class JMXQuery {
                 }
             }
         } catch (Throwable e) {
-            return rtn;
+            // ignore
         }
 
         return rtn;

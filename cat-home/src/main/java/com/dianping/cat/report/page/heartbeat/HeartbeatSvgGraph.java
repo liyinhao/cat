@@ -28,28 +28,28 @@ public class HeartbeatSvgGraph {
 
 	private GraphBuilder m_builder;
 
-	private Map<String, Map<String, double[]>> m_extensions = new LinkedHashMap<String, Map<String, double[]>>();
+	private Map<String, Map<String, SvgItem>> m_extensions = new LinkedHashMap<String, Map<String, SvgItem>>();
 
 	public HeartbeatSvgGraph(GraphBuilder builder, HeartbeatDisplayPolicyManager manager) {
 		m_builder = builder;
 		m_manager = manager;
 	}
 
-	private void addSortedGroups(Map<String, Map<String, double[]>> tmpExtensions) {
+	private void addSortedGroups(Map<String, Map<String, SvgItem>> tmpExtensions) {
 		List<String> orderedGroupNames = m_manager.sortGroupNames(m_extensions.keySet());
 
 		for (String groupName : orderedGroupNames) {
-			Map<String, double[]> extensionGroup = m_extensions.get(groupName);
+			Map<String, SvgItem> extensionGroup = m_extensions.get(groupName);
 
 			tmpExtensions.put(groupName, extensionGroup);
 		}
 	}
 
-	private void buildExtensionGraph(Map<String, ExtensionGroup> graphs, Entry<String, Map<String, double[]>> entry) {
+	private void buildExtensionGraph(Map<String, ExtensionGroup> graphs, Entry<String, Map<String, SvgItem>> entry) {
 		String title = entry.getKey();
 
 		if (title.equalsIgnoreCase(DAL)) {
-			for (Entry<String, double[]> subEntry : entry.getValue().entrySet()) {
+			for (Entry<String, SvgItem> subEntry : entry.getValue().entrySet()) {
 				String key = subEntry.getKey();
 				int pos = key.lastIndexOf('-');
 
@@ -68,8 +68,8 @@ public class HeartbeatSvgGraph {
 						INDEX.put(subTitle, INDEX_COUNTER.getAndIncrement());
 					}
 
-					String svg = m_builder.build(new HeartbeatSvgBuilder(INDEX.get(subTitle), subTitle, "Minute", "Count",
-					      subEntry.getValue()));
+					String svg = m_builder.build(new HeartbeatSvgBuilder(INDEX.get(subTitle), subTitle, subTitle, "Minute", "Count",
+					      subEntry.getValue().getItem()));
 					extensitonGroup.getSvgs().put(subTitle, svg);
 				}
 			}
@@ -82,38 +82,52 @@ public class HeartbeatSvgGraph {
 			}
 
 			int i = 0;
-			for (Entry<String, double[]> item : entry.getValue().entrySet()) {
+			for (Entry<String, SvgItem> item : entry.getValue().entrySet()) {
 				String key = item.getKey();
 				Metric metricConfig = m_manager.queryMetric(title, key);
-				String svgTitle = key;
-				String lable = "MB";
+				String svgTitle = item.getValue().getTitle();
+				String lable = null;
 
 				if (metricConfig != null) {
 					String configTitle = metricConfig.getTitle();
 
-					if (configTitle != null) {
+					if (svgTitle == null) {
 						svgTitle = configTitle;
 					}
+
 					lable = metricConfig.getLable();
+				} else {
+					lable = m_manager.queryMetricLable(title, key);
 				}
-				String svg = m_builder.build(new HeartbeatSvgBuilder(i++, svgTitle, "Minute", lable, item.getValue()));
+
+				if (svgTitle == null){
+					svgTitle = key;
+				}
+
+				if (lable == null){
+					lable = "MB";
+				}
+
+				String svg = m_builder.build(new HeartbeatSvgBuilder(i++, key, svgTitle, "Minute", lable, item.getValue().getItem()));
 				extensitonGroup.getSvgs().put(key, svg);
 			}
 		}
 	}
 
-	private Map<String, Map<String, double[]>> dealWithExtensions() {
-		Map<String, Map<String, double[]>> result = new LinkedHashMap<String, Map<String, double[]>>();
+	private Map<String, Map<String, SvgItem>> dealWithExtensions() {
+		Map<String, Map<String, SvgItem>> result = new LinkedHashMap<String, Map<String, SvgItem>>();
 
 		addSortedGroups(result);
-		for (Entry<String, Map<String, double[]>> entry : result.entrySet()) {
+		for (Entry<String, Map<String, SvgItem>> entry : result.entrySet()) {
 			String groupName = entry.getKey();
-			Map<String, double[]> originMetrics = entry.getValue();
+			Map<String, SvgItem> originMetrics = entry.getValue();
 			List<String> metricNames = m_manager.sortMetricNames(groupName, originMetrics.keySet());
-			Map<String, double[]> normalizedMetrics = new LinkedHashMap<String, double[]>();
+			Map<String, SvgItem> normalizedMetrics = new LinkedHashMap<String, SvgItem>();
 
 			for (String metricName : metricNames) {
-				double[] values = originMetrics.get(metricName);
+
+				SvgItem svgItem = originMetrics.get(metricName);
+				double[] values = svgItem.getItem();
 
 				if (m_manager.isDelta(groupName, metricName)) {
 					values = getAddedCount(values);
@@ -124,7 +138,7 @@ public class HeartbeatSvgGraph {
 				for (int i = 0; i <= 59; i++) {
 					values[i] = values[i] / unit;
 				}
-				normalizedMetrics.put(metricName, values);
+				normalizedMetrics.put(metricName, svgItem);
 			}
 			entry.setValue(normalizedMetrics);
 		}
@@ -150,22 +164,23 @@ public class HeartbeatSvgGraph {
 
 			for (Entry<String, Extension> entry : period.getExtensions().entrySet()) {
 				String group = entry.getKey();
-				Map<String, double[]> groups = m_extensions.get(group);
+				Map<String, SvgItem> groups = m_extensions.get(group);
 
 				if (groups == null) {
-					groups = new LinkedHashMap<String, double[]>();
+					groups = new LinkedHashMap<String, SvgItem>();
 
 					m_extensions.put(group, groups);
 				}
 				for (Entry<String, Detail> detail : entry.getValue().getDetails().entrySet()) {
 					String key = detail.getKey();
-					double[] doubles = groups.get(key);
+					SvgItem svgItem = groups.get(key);
 
-					if (doubles == null) {
-						doubles = new double[60];
-						groups.put(key, doubles);
+					if (svgItem == null) {
+						svgItem = new SvgItem(new double[60], detail.getValue().getDescription() );
+						groups.put(key, svgItem);
 					}
 
+					double[] doubles = svgItem.getItem();
 					doubles[minute] = detail.getValue().getValue();
 				}
 			}
@@ -196,7 +211,7 @@ public class HeartbeatSvgGraph {
 	public Map<String, ExtensionGroup> getExtensionGraph() {
 		Map<String, ExtensionGroup> graphs = new LinkedHashMap<String, ExtensionGroup>();
 
-		for (Entry<String, Map<String, double[]>> items : m_extensions.entrySet()) {
+		for (Entry<String, Map<String, SvgItem>> items : m_extensions.entrySet()) {
 			buildExtensionGraph(graphs, items);
 		}
 
@@ -223,6 +238,24 @@ public class HeartbeatSvgGraph {
 
 		public Map<String, String> getSvgs() {
 			return m_svgs;
+		}
+	}
+
+	private class SvgItem {
+		private double[] item;
+		private String title;
+
+		public SvgItem(double[] item, String title) {
+			this.item = item;
+			this.title = title;
+		}
+
+		public double[] getItem() {
+			return item;
+		}
+
+		public String getTitle() {
+			return title;
 		}
 	}
 

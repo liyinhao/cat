@@ -7,10 +7,13 @@ public abstract class AbstractGraphPayload implements GraphPayload {
 
 	private String m_title;
 
+	private String m_hint;
+
 	private double[] m_values;
 
-	public AbstractGraphPayload(String title, String axisXLabel, String axisYLabel) {
+	public AbstractGraphPayload(String title, String hint, String axisXLabel, String axisYLabel) {
 		m_title = title;
+		m_hint = hint;
 		m_axisXLabel = axisXLabel;
 		m_axisYLabel = axisYLabel;
 	}
@@ -104,6 +107,11 @@ public abstract class AbstractGraphPayload implements GraphPayload {
 	@Override
 	public String getTitle() {
 		return m_title;
+	}
+
+	@Override
+	public String getHint() {
+		return m_hint;
 	}
 
 	@Override

@@ -83,5 +83,6 @@
 	<entity name="extensionDetail" dynamic-attributes="true">
 		<attribute name="id" value-type="String" key="true"/>
 		<attribute name="value" value-type="double" primitive="true" />
+		<element name="description" value-type="String" />
 	</entity>	
 </model>
