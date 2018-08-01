@@ -13,7 +13,7 @@ public class GraphPayload {
 		private final TransactionName m_name;
 
 		public AbstractPayload(String title, String axisXLabel, String axisYLabel, TransactionName name) {
-			super(title, title, axisXLabel, axisYLabel);
+			super(title, axisXLabel, axisYLabel);
 
 			m_name = name;
 		}

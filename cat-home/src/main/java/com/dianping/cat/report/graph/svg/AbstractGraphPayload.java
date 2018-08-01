@@ -11,6 +11,10 @@ public abstract class AbstractGraphPayload implements GraphPayload {
 
 	private double[] m_values;
 
+	public AbstractGraphPayload(String title, String axisXLabel, String axisYLabel) {
+		this(title, title, axisXLabel, axisYLabel);
+	}
+
 	public AbstractGraphPayload(String title, String hint, String axisXLabel, String axisYLabel) {
 		m_title = title;
 		m_hint = hint;
