@@ -170,12 +170,36 @@
 						</c:otherwise>
 					</c:choose>
 					<td>${w:format(e.totalCount,'#,###,###,###,##0')}</td>
-					<td>${w:format(e.failCount,'#,###,###,###,##0')}</td>
+
+					<c:choose>
+						<c:when test="${empty e.failMessageUrl}">
+							<td>${w:format(e.failCount,'#,###,###,###,##0')}</td>
+						</c:when>
+						<c:otherwise>
+							<td><a href="/cat/r/m/${e.failMessageUrl}?domain=${model.domain}">${w:format(e.failCount,'#,###,###,###,##0')}</a></td>
+						</c:otherwise>
+					</c:choose>
+
 					<td>&nbsp;${w:format(e.failPercent/100,'0.0000%')}</td>
 					<td class="center"><a
-								href="/cat/r/m/${empty e.failMessageUrl ? e.successMessageUrl : e.failMessageUrl}?domain=${model.domain}">Log View</a></td>
-					<td>${w:format(e.min,'###,##0.#')}</td>
-					<td>${w:format(e.max,'###,##0.#')}</td>
+								href="/cat/r/m/${empty e.successMessageUrl ? e.failMessageUrl : e.successMessageUrl}?domain=${model.domain}">Log View</a></td>
+
+					<c:choose>
+						<c:when test="${empty e.minMessageUrl}">
+							<td>${w:format(e.min,'###,##0.#')}</td>
+						</c:when>
+						<c:otherwise>
+							<td><a href="/cat/r/m/${e.minMessageUrl}?domain=${model.domain}">${w:format(e.min,'###,##0.#')}</a></td>
+						</c:otherwise>
+					</c:choose>
+					<c:choose>
+						<c:when test="${empty e.maxMessageUrl}">
+							<td>${w:format(e.max,'###,##0.#')}</td>
+						</c:when>
+						<c:otherwise>
+							<td><a href="/cat/r/m/${e.maxMessageUrl}?domain=${model.domain}">${w:format(e.max,'###,##0.#')}</a></td>
+						</c:otherwise>
+					</c:choose>
 					<td>${w:format(e.avg,'###,##0.0')}</td>
 					<c:choose>
 						<c:when test="${status.index > 0}">

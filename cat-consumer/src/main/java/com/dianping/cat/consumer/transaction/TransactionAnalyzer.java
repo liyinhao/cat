@@ -219,22 +219,16 @@ public class TransactionAnalyzer extends AbstractMessageAnalyzer<TransactionRepo
 		name.incTotalCount();
 
 		if (t.isSuccess()) {
-			if (type.getSuccessMessageUrl() == null) {
+			if (messageId != null && messageId.length() > 0) {
 				type.setSuccessMessageUrl(messageId);
-			}
-
-			if (name.getSuccessMessageUrl() == null) {
 				name.setSuccessMessageUrl(messageId);
 			}
 		} else {
 			type.incFailCount();
 			name.incFailCount();
 
-			if (type.getFailMessageUrl() == null) {
+			if (messageId != null && messageId.length() > 0) {
 				type.setFailMessageUrl(messageId);
-			}
-
-			if (name.getFailMessageUrl() == null) {
 				name.setFailMessageUrl(messageId);
 			}
 		}
@@ -243,7 +237,15 @@ public class TransactionAnalyzer extends AbstractMessageAnalyzer<TransactionRepo
 		double sum = duration * duration;
 
 		name.setMax(Math.max(name.getMax(), duration));
+		if (duration >= name.getMax() && messageId != null && messageId.length() > 0){
+			name.setMaxMessageUrl(messageId);
+		}
+
 		name.setMin(Math.min(name.getMin(), duration));
+		if (duration <= name.getMin() && messageId != null && messageId.length() > 0){
+			name.setMinMessageUrl(messageId);
+		}
+
 		name.setSum(name.getSum() + duration);
 		name.setSum2(name.getSum2() + sum);
 		name.findOrCreateAllDuration(allDuration).incCount();

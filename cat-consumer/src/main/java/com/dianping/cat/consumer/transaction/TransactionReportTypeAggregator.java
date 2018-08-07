@@ -30,9 +30,11 @@ public class TransactionReportTypeAggregator extends BaseVisitor {
 
 		if (other.getMin() < old.getMin()) {
 			old.setMin(other.getMin());
+			old.setMinMessageUrl(other.getMinMessageUrl());
 		}
 		if (other.getMax() > old.getMax()) {
 			old.setMax(other.getMax());
+			old.setMaxMessageUrl(other.getMaxMessageUrl());
 		}
 
 		old.setSum(old.getSum() + other.getSum());

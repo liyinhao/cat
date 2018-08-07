@@ -39,6 +39,8 @@
 		<attribute name="std" value-type="double" />
 		<element name="successMessageUrl" value-type="String" />
 		<element name="failMessageUrl" value-type="String" />
+		<element name="maxMessageUrl" value-type="String" />
+		<element name="minMessageUrl" value-type="String" />
 		<entity-ref name="range" type="list" names="ranges" />
 		<entity-ref name="duration" type="list" names="durations" />
 	</entity>
