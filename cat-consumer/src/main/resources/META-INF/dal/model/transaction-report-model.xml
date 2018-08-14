@@ -46,6 +46,8 @@
 		<attribute name="sum" value-type="double" primitive="true" format="0.0" />
 		<attribute name="sum2" value-type="double" primitive="true" format="0.0" />
 		<attribute name="std" value-type="double" primitive="true" format="0.0" />
+		<element name="maxMessageUrl" value-type="String" />
+		<element name="minMessageUrl" value-type="String" />
 		<entity-ref name="range" type="map" names="ranges" method-find-or-create="true" />
 		<entity-ref name="duration" type="map" names="durations" method-find-or-create="true" />
 		<entity-ref name="all-duration" type="map" names="all-durations" method-find-or-create="true"  render="false"/>
