@@ -233,6 +233,14 @@ public class HeartbeatAnalyzer extends AbstractMessageAnalyzer<HeartbeatReport> 
 				}
 			}
 
+			List<MongoPoolInfo> mongoPoolInfos = threadInfo.getMongoPools();
+			if (mongoPoolInfos != null && mongoPoolInfos.size() > 0){
+				for (MongoPoolInfo mongoPoolInfo : mongoPoolInfos) {
+					thread.findOrCreateExtensionDetail("Mongo:" + mongoPoolInfo.getName())
+							.setValue(mongoPoolInfo.getCount());
+				}
+			}
+
 		}
 
 		for (Extension ex : info.getExtensions().values()) {

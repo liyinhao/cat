@@ -48,6 +48,7 @@
 		<attribute name="http-thread-count" value-type="int" primitive="true" />
 		<entity-ref name="druid" names ="druid-pools" type="list"/>
 		<entity-ref name="redis" names ="redis-pools" type="list"/>
+		<entity-ref name="mongo" names ="mongo-pools" type="list"/>
 	</entity>
 	<entity name="druid" class-name="DruidPoolInfo">
 		<attribute name="name" value-type="String" />
@@ -60,6 +61,13 @@
 	<entity name="redis" class-name="RedisPoolInfo">
 		<attribute name="name" value-type="String" />
 		<attribute name="count" value-type="int" primitive="true" />
+	</entity>
+	<entity name="mongo" class-name="MongoPoolInfo">
+		<attribute name="name" value-type="String"/>
+		<attribute name="count" value-type="int" primitive="true"/>
+		<attribute name="max-size" value-type="int" primitive="true"/>
+		<attribute name="min-size" value-type="int" primitive="true"/>
+		<attribute name="wait-queue-size" value-type="int" primitive="true"/>
 	</entity>
 	<entity name="disk" class-name="DiskInfo">
 		<entity-ref name="disk-volume" list="list" names="disk-volumes" />

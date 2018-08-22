@@ -202,6 +202,17 @@ public class StatusInfoCollector extends BaseVisitor {
             systemExtension.findOrCreateExtensionDetail("FreePhysicalMemory").setValue(b.getFreePhysicalMemorySize());
             systemExtension.findOrCreateExtensionDetail("FreeSwapSpaceSize").setValue(b.getFreeSwapSpaceSize());
         }
+
+        try {
+            List<BufferPoolMXBean> pools = ManagementFactory.getPlatformMXBeans(BufferPoolMXBean.class);
+            for (BufferPoolMXBean mxBean : pools) {
+                if (mxBean.getName().equals("direct")) {
+                    systemExtension.findOrCreateExtensionDetail("DirectMemoryUsed").setValue(mxBean.getMemoryUsed());
+                }
+            }
+        }
+        catch (Throwable e) {}
+
         m_statusInfo.addExtension(systemExtension);
     }
 
@@ -264,14 +275,19 @@ public class StatusInfoCollector extends BaseVisitor {
         frameworkThread.findOrCreateExtensionDetail("StartedThread").setValue(bean.getTotalStartedThreadCount());
 
 
-        List<DruidPoolInfo> druidPoolInfos = getDruidPools();
+        List<DruidPoolInfo> druidPoolInfos = ThreadsInfoCollector.getDruidPools();
         for (DruidPoolInfo druidPoolInfo : druidPoolInfos) {
             thread.addDruid(druidPoolInfo);
         }
 
-        List<RedisPoolInfo> redisPoolInfos = getRedisPools();
+        List<RedisPoolInfo> redisPoolInfos = ThreadsInfoCollector.getRedisPools();
         for (RedisPoolInfo redisPoolInfo : redisPoolInfos) {
             thread.addRedis(redisPoolInfo);
+        }
+
+        List<MongoPoolInfo> mongoPoolInfos = ThreadsInfoCollector.getMongoPools();
+        for (MongoPoolInfo mongoPoolInfo : mongoPoolInfos) {
+            thread.addMongo(mongoPoolInfo);
         }
 
         m_statusInfo.addExtension(frameworkThread);
@@ -279,77 +295,5 @@ public class StatusInfoCollector extends BaseVisitor {
         super.visitThread(thread);
     }
 
-    private List<DruidPoolInfo> getDruidPools() {
-
-        List<DruidPoolInfo> result = new ArrayList<DruidPoolInfo>();
-
-        try {
-
-            String[] atts = {"Name", "Url", "PoolingCount", "PoolingPeak", "ActiveCount", "ActivePeak"};
-            List<Map<String, Object>> infos = JMXQuery.queryList("com.alibaba.druid", "DruidDataSource", atts);
-
-            for (Map<String, Object> map : infos) {
-
-                try {
-                    DruidPoolInfo druidPoolInfo = new DruidPoolInfo();
-                    druidPoolInfo.setName(map.get("Name").toString());
-                    druidPoolInfo.setUrl(map.get("Url").toString());
-                    druidPoolInfo.setPoolingCount((Integer) map.get("PoolingCount"));
-                    druidPoolInfo.setPoolingPeak((Integer) map.get("PoolingPeak"));
-                    druidPoolInfo.setActiveCount((Integer) map.get("ActiveCount"));
-                    druidPoolInfo.setActivePeak((Integer) map.get("ActivePeak"));
-
-                    result.add(druidPoolInfo);
-                } catch (Exception e) {
-                    continue;
-                }
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-
-        return result;
-    }
-
-    private List<RedisPoolInfo> getRedisPools() {
-
-        List<RedisPoolInfo> result = new ArrayList<RedisPoolInfo>();
-
-        try {
-
-            String[] atts = {"NumActive", "NumIdle", "FactoryType"};
-
-            Map<String, Map<String, Object>> infos =
-                    JMXQuery.queryMap("org.apache.commons.pool2", "GenericObjectPool", atts);
-
-            for (Map.Entry<String, Map<String, Object>> entry : infos.entrySet()) {
-
-                try {
-                    String entryKey = entry.getKey();
-                    Map<String, Object> entryValue = entry.getValue();
-
-                    String factoryType = entryValue.get("FactoryType").toString();
-                    if (factoryType != null && factoryType.startsWith("redis.clients.jedis.JedisFactory")) {
-
-                        int numActive = (Integer) entryValue.get("NumActive");
-                        int numIdle = (Integer) entryValue.get("NumIdle");
-
-
-                        RedisPoolInfo redisPoolInfo = new RedisPoolInfo();
-                        redisPoolInfo.setName(entryKey);
-                        redisPoolInfo.setCount(numActive + numIdle);
-
-                        result.add(redisPoolInfo);
-                    }
-                } catch (Exception e) {
-                    continue;
-                }
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-
-        return result;
-    }
 
 }
