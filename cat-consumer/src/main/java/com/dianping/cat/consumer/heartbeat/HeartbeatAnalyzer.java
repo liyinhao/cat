@@ -169,19 +169,6 @@ public class HeartbeatAnalyzer extends AbstractMessageAnalyzer<HeartbeatReport> 
 			system.findOrCreateExtensionDetail("FreePhysicalMemory").setValue(osInfo.getFreePhysicalMemory());
 			system.findOrCreateExtensionDetail("FreeSwapSpaceSize").setValue(osInfo.getFreeSwapSpace());
 
-			Extension gc = info.findOrCreateExtension("GC");
-			MemoryInfo memory = info.getMemory();
-			List<GcInfo> gcs = memory.getGcs();
-
-			if (gcs.size() >= 2) {
-				GcInfo newGc = gcs.get(0);
-				GcInfo oldGc = gcs.get(1);
-				gc.findOrCreateExtensionDetail("ParNewCount").setValue(newGc.getCount());
-				gc.findOrCreateExtensionDetail("ParNewTime").setValue(newGc.getTime());
-				gc.findOrCreateExtensionDetail("ConcurrentMarkSweepCount").setValue(oldGc.getCount());
-				gc.findOrCreateExtensionDetail("ConcurrentMarkSweepTime").setValue(oldGc.getTime());
-			}
-
 			Extension disk = info.findOrCreateExtension("Disk");
 			List<DiskVolumeInfo> diskVolumes = info.getDisk().getDiskVolumes();
 

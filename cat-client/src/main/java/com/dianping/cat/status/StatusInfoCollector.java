@@ -19,6 +19,8 @@ public class StatusInfoCollector extends BaseVisitor {
 
     private StatusInfo m_statusInfo;
 
+    private static DeltaHelper deltaHelper = new DeltaHelper();
+
     public StatusInfoCollector(MessageStatistics statistics, String jars) {
         m_statistics = statistics;
         m_jars = jars;
@@ -148,8 +150,10 @@ public class StatusInfoCollector extends BaseVisitor {
                 gc.setTime(mxbean.getCollectionTime());
                 memory.addGc(gc);
 
-                gcExtension.findOrCreateExtensionDetail(name + "Count").setValue(count);
-                gcExtension.findOrCreateExtensionDetail(name + "Time").setValue(mxbean.getCollectionTime());
+                gcExtension.findOrCreateExtensionDetail(name + "Count-Delta")
+                        .setValue(deltaHelper.getDelta(name + "Count", count, true));
+                gcExtension.findOrCreateExtensionDetail(name + "Time-Delta")
+                        .setValue(deltaHelper.getDelta(name + "Time", mxbean.getCollectionTime(), true));
             }
         }
         Extension heapUsage = m_statusInfo.findOrCreateExtension("JVMHeap");
@@ -169,9 +173,12 @@ public class StatusInfoCollector extends BaseVisitor {
         Extension catExtension = m_statusInfo.findOrCreateExtension("CatUsage");
 
         if (m_statistics != null) {
-            catExtension.findOrCreateExtensionDetail("Produced").setValue(m_statistics.getProduced());
-            catExtension.findOrCreateExtensionDetail("Overflowed").setValue(m_statistics.getOverflowed());
-            catExtension.findOrCreateExtensionDetail("Bytes").setValue(m_statistics.getBytes());
+            catExtension.findOrCreateExtensionDetail("Produced-Delta")
+                    .setValue(deltaHelper.getDelta("Produced", this.m_statistics.getProduced(), true));
+            catExtension.findOrCreateExtensionDetail("Overflowed-Delta")
+                    .setValue(deltaHelper.getDelta("Overflowed", this.m_statistics.getOverflowed(), true));
+            catExtension.findOrCreateExtensionDetail("Bytes-Delta")
+                    .setValue(deltaHelper.getDelta("Bytes", this.m_statistics.getBytes(), true));
         }
     }
 
@@ -272,7 +279,9 @@ public class StatusInfoCollector extends BaseVisitor {
         frameworkThread.findOrCreateExtensionDetail("DubboThread").setValue(
                 countThreadsByPrefix(threads, "Pigeon-", "DPSF-", "Netty-", "Client-ResponseProcessor"));
         frameworkThread.findOrCreateExtensionDetail("ActiveThread").setValue(bean.getThreadCount());
-        frameworkThread.findOrCreateExtensionDetail("StartedThread").setValue(bean.getTotalStartedThreadCount());
+
+        frameworkThread.findOrCreateExtensionDetail("StartedThread-Delta")
+                .setValue(deltaHelper.getDelta("StartedThread", bean.getTotalStartedThreadCount(), true));
 
 
         List<DruidPoolInfo> druidPoolInfos = ThreadsInfoCollector.getDruidPools();
@@ -296,4 +305,24 @@ public class StatusInfoCollector extends BaseVisitor {
     }
 
 
+    private static class DeltaHelper {
+        Map<String, Double> lastValues = new HashMap<String, Double>();
+
+        public double getDelta(String name, double v) {
+            return getDelta(name, v, false);
+        }
+
+        public double getDelta(String name, double v, boolean keepFirst) {
+
+            Double value = this.lastValues.get(name);
+            if (value == null) {
+                this.lastValues.put(name, Double.valueOf(v));
+                return keepFirst ? v : 0.0D;
+            }
+
+            this.lastValues.put(name, Double.valueOf(v));
+
+            return v - value.doubleValue();
+        }
+    }
 }
