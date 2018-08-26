@@ -138,6 +138,8 @@ public class HeartbeatSvgGraph {
 				for (int i = 0; i <= 59; i++) {
 					values[i] = values[i] / unit;
 				}
+
+				svgItem.item = values;
 				normalizedMetrics.put(metricName, svgItem);
 			}
 			entry.setValue(normalizedMetrics);
