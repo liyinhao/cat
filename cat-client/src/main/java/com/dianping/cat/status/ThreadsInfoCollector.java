@@ -52,7 +52,7 @@ class ThreadsInfoCollector {
 
         try {
 
-            String[] attributes = {"NumActive", "NumIdle", "FactoryType"};
+            String[] attributes = {"NumActive", "NumIdle", "FactoryType", "MaxTotal", "MaxIdle", "MinIdle"};
 
             Map<String, Map<String, Object>> infos =
                     JMXQuery.queryMap("org.apache.commons.pool2", "GenericObjectPool", attributes);
@@ -68,11 +68,19 @@ class ThreadsInfoCollector {
 
                         int numActive = (Integer) entryValue.get("NumActive");
                         int numIdle = (Integer) entryValue.get("NumIdle");
+                        int maxTotal = (Integer) entryValue.get("MaxTotal");
+                        int maxIdle = (Integer) entryValue.get("MaxIdle");
+                        int minIdle = (Integer) entryValue.get("MinIdle");
 
 
                         RedisPoolInfo redisPoolInfo = new RedisPoolInfo();
                         redisPoolInfo.setName(entryKey);
-                        redisPoolInfo.setCount(numActive + numIdle);
+                        redisPoolInfo.setCount(numActive);
+                        redisPoolInfo.setNumActive(numActive);
+                        redisPoolInfo.setNumIdle(numIdle);
+                        redisPoolInfo.setMaxTotal(maxTotal);
+                        redisPoolInfo.setMaxIdle(maxIdle);
+                        redisPoolInfo.setMinIdle(minIdle);
 
                         result.add(redisPoolInfo);
                     }
