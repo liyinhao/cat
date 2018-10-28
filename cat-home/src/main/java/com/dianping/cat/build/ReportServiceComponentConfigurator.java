@@ -3,6 +3,7 @@ package com.dianping.cat.build;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dianping.cat.report.page.topGroup.service.TopGroupReportService;
 import org.unidal.lookup.configuration.AbstractResourceConfigurator;
 import org.unidal.lookup.configuration.Component;
 
@@ -98,6 +99,10 @@ public class ReportServiceComponentConfigurator extends AbstractResourceConfigur
 		all.add(C(AppReportService.class).req(HourlyReportDao.class, DailyReportDao.class, WeeklyReportDao.class,
 		      MonthlyReportDao.class, HourlyReportContentDao.class, DailyReportContentDao.class,
 		      WeeklyReportContentDao.class, MonthlyReportContentDao.class));
+
+		all.add(C(TopGroupReportService.class).req(HourlyReportDao.class, DailyReportDao.class, WeeklyReportDao.class,
+				MonthlyReportDao.class, HourlyReportContentDao.class, DailyReportContentDao.class,
+				WeeklyReportContentDao.class, MonthlyReportContentDao.class));
 
 		return all;
 	}

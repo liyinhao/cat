@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.dianping.cat.consumer.topGroup.TopGroupAnalyzer;
+import com.dianping.cat.consumer.topGroup.TopGroupDelegate;
 import org.unidal.dal.jdbc.configuration.AbstractJdbcResourceConfigurator;
 import org.unidal.initialization.Module;
 import org.unidal.lookup.configuration.Component;
@@ -77,6 +79,7 @@ public class ComponentsConfigurator extends AbstractJdbcResourceConfigurator {
 		all.addAll(defineProblemComponents());
 		all.addAll(defineHeartbeatComponents());
 		all.addAll(defineTopComponents());
+		all.addAll(defineTopGroupComponents());
 		all.addAll(defineDumpComponents());
 		all.addAll(defineStateComponents());
 		all.addAll(defineCrossComponents());
@@ -249,6 +252,23 @@ public class ComponentsConfigurator extends AbstractJdbcResourceConfigurator {
 		      .req(ReportBucketManager.class, HourlyReportDao.class, HourlyReportContentDao.class, DomainValidator.class) //
 		      .config(E("name").value(ID)));
 		all.add(C(ReportDelegate.class, ID, TopDelegate.class));
+
+		return all;
+	}
+
+	private Collection<Component> defineTopGroupComponents() {
+		final List<Component> all = new ArrayList<Component>();
+		final String ID = TopGroupAnalyzer.ID;
+
+		all.add(C(MessageAnalyzer.class, ID, TopGroupAnalyzer.class).is(PER_LOOKUP).req(ReportManager.class, ID)
+				.req(ReportDelegate.class, ID).req(ServerConfigManager.class, ServerFilterConfigManager.class)
+				.req(ProjectService.class, ProjectService.class));
+		all.add(C(ReportManager.class, ID, DefaultReportManager.class).is(PER_LOOKUP) //
+				.req(ReportDelegate.class, ID) //
+				.req(ReportBucketManager.class, HourlyReportDao.class, HourlyReportContentDao.class, DomainValidator.class) //
+				.config(E("name").value(ID)));
+		all.add(C(ReportDelegate.class, ID, TopGroupDelegate.class).req(TaskManager.class, ServerFilterConfigManager.class,
+				AllReportConfigManager.class));
 
 		return all;
 	}

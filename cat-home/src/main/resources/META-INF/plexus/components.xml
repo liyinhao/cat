@@ -1101,6 +1101,36 @@
 			</requirements>
 		</component>
 		<component>
+			<role>com.dianping.cat.report.page.topGroup.service.TopGroupReportService</role>
+			<implementation>com.dianping.cat.report.page.topGroup.service.TopGroupReportService</implementation>
+			<requirements>
+				<requirement>
+					<role>com.dianping.cat.core.dal.HourlyReportDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.DailyReportDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.WeeklyReportDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.MonthlyReportDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.HourlyReportContentDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.DailyReportContentDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.WeeklyReportContentDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.MonthlyReportContentDao</role>
+				</requirement>
+			</requirements>
+		</component>
+		<component>
 			<role>com.dianping.cat.report.task.DefaultTaskConsumer</role>
 			<implementation>com.dianping.cat.report.task.DefaultTaskConsumer</implementation>
 			<requirements>
@@ -1125,6 +1155,10 @@
 			<implementation>com.dianping.cat.report.page.problem.task.ProblemGraphCreator</implementation>
 		</component>
 		<component>
+			<role>com.dianping.cat.report.page.topGroup.task.TopGroupGraphCreator</role>
+			<implementation>com.dianping.cat.report.page.topGroup.task.TopGroupGraphCreator</implementation>
+		</component>
+		<component>
 			<role>com.dianping.cat.report.page.transaction.task.TransactionMerger</role>
 			<implementation>com.dianping.cat.report.page.transaction.task.TransactionMerger</implementation>
 		</component>
@@ -1135,6 +1169,10 @@
 		<component>
 			<role>com.dianping.cat.report.page.problem.task.ProblemMerger</role>
 			<implementation>com.dianping.cat.report.page.problem.task.ProblemMerger</implementation>
+		</component>
+		<component>
+			<role>com.dianping.cat.report.page.topGroup.task.TopGroupMerger</role>
+			<implementation>com.dianping.cat.report.page.topGroup.task.TopGroupMerger</implementation>
 		</component>
 		<component>
 			<role>com.dianping.cat.report.page.metric.task.MetricPointParser</role>
@@ -1229,6 +1267,31 @@
 				</requirement>
 				<requirement>
 					<role>com.dianping.cat.report.page.event.task.EventMerger</role>
+				</requirement>
+			</requirements>
+		</component>
+		<component>
+			<role>com.dianping.cat.report.task.TaskBuilder</role>
+			<role-hint>topGroup</role-hint>
+			<implementation>com.dianping.cat.report.page.topGroup.task.TopGroupReportBuilder</implementation>
+			<requirements>
+				<requirement>
+					<role>com.dianping.cat.core.dal.GraphDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.DailyGraphDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.topGroup.service.TopGroupReportService</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.topGroup.service.TopGroupReportService</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.topGroup.task.TopGroupGraphCreator</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.topGroup.task.TopGroupMerger</role>
 				</requirement>
 			</requirements>
 		</component>
@@ -1692,6 +1755,34 @@
 			</requirements>
 		</component>
 		<component>
+			<role>com.dianping.cat.report.task.TaskBuilder</role>
+			<role-hint>dailyNotify</role-hint>
+			<implementation>com.dianping.cat.report.task.notify.NotifyTaskBuilder</implementation>
+			<requirements>
+				<requirement>
+					<role>com.dianping.cat.report.task.notify.ReportRender</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.alert.sender.sender.SenderManager</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.service.ProjectService</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.transaction.service.TransactionReportService</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.event.service.EventReportService</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.problem.service.ProblemReportService</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.topGroup.service.TopGroupReportService</role>
+				</requirement>
+			</requirements>
+		</component>
+		<component>
 			<role>com.dianping.cat.report.page.app.task.CommandAutoCompleter</role>
 			<implementation>com.dianping.cat.report.page.app.task.CommandAutoCompleter</implementation>
 			<requirements>
@@ -1853,6 +1944,52 @@
 					<role>com.dianping.cat.report.service.ModelService</role>
 					<role-hints>
 						<role-hint>event-historical</role-hint>
+					</role-hints>
+					<field-name>m_services</field-name>
+				</requirement>
+			</requirements>
+		</component>
+		<component>
+			<role>com.dianping.cat.report.service.LocalModelService</role>
+			<role-hint>topGroup</role-hint>
+			<implementation>com.dianping.cat.report.page.topGroup.service.LocalTopGroupService</implementation>
+			<requirements>
+				<requirement>
+					<role>com.dianping.cat.report.ReportBucketManager</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.analysis.MessageConsumer</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.config.server.ServerConfigManager</role>
+				</requirement>
+			</requirements>
+		</component>
+		<component>
+			<role>com.dianping.cat.report.service.ModelService</role>
+			<role-hint>topGroup-historical</role-hint>
+			<implementation>com.dianping.cat.report.page.topGroup.service.HistoricalTopGroupService</implementation>
+			<requirements>
+				<requirement>
+					<role>com.dianping.cat.report.page.topGroup.service.TopGroupReportService</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.config.server.ServerConfigManager</role>
+				</requirement>
+			</requirements>
+		</component>
+		<component>
+			<role>com.dianping.cat.report.service.ModelService</role>
+			<role-hint>topGroup</role-hint>
+			<implementation>com.dianping.cat.report.page.topGroup.service.CompositeTopGroupService</implementation>
+			<requirements>
+				<requirement>
+					<role>com.dianping.cat.config.server.ServerConfigManager</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.service.ModelService</role>
+					<role-hints>
+						<role-hint>topGroup-historical</role-hint>
 					</role-hints>
 					<field-name>m_services</field-name>
 				</requirement>
@@ -5839,6 +5976,93 @@
 					<role>com.dianping.cat.config.content.ContentFetcher</role>
 				</requirement>
 			</requirements>
+		</component>
+		<component>
+			<role>com.dianping.cat.report.page.topGroup.Handler</role>
+			<implementation>com.dianping.cat.report.page.topGroup.Handler</implementation>
+			<requirements>
+				<requirement>
+					<role>com.dianping.cat.report.graph.svg.GraphBuilder</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.topGroup.HistoryGraphs</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.topGroup.JspViewer</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.topGroup.service.TopGroupReportService</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.topGroup.transform.TopGroupMergeHelper</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.service.ModelService</role>
+					<role-hint>topGroup</role-hint>
+					<field-name>m_service</field-name>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.mvc.PayloadNormalizer</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.report.page.DomainGroupConfigManager</role>
+				</requirement>
+			</requirements>
+		</component>
+		<component>
+			<role>com.dianping.cat.report.page.topGroup.HistoryGraphs</role>
+			<implementation>com.dianping.cat.report.page.topGroup.HistoryGraphs</implementation>
+			<requirements>
+				<requirement>
+					<role>com.dianping.cat.core.dal.GraphDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.DailyGraphDao</role>
+				</requirement>
+			</requirements>
+		</component>
+		<component>
+			<role>com.dianping.cat.report.page.topGroup.JspViewer</role>
+			<implementation>com.dianping.cat.report.page.topGroup.JspViewer</implementation>
+			<requirements>
+				<requirement>
+					<role>org.unidal.web.mvc.view.model.ModelHandler</role>
+				</requirement>
+			</requirements>
+		</component>
+		<component>
+			<role>com.dianping.cat.report.page.topGroup.service.TopGroupReportService</role>
+			<implementation>com.dianping.cat.report.page.topGroup.service.TopGroupReportService</implementation>
+			<requirements>
+				<requirement>
+					<role>com.dianping.cat.core.dal.HourlyReportDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.HourlyReportContentDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.DailyReportDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.DailyReportContentDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.WeeklyReportDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.WeeklyReportContentDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.MonthlyReportDao</role>
+				</requirement>
+				<requirement>
+					<role>com.dianping.cat.core.dal.MonthlyReportContentDao</role>
+				</requirement>
+			</requirements>
+		</component>
+		<component>
+			<role>com.dianping.cat.report.page.topGroup.transform.TopGroupMergeHelper</role>
+			<implementation>com.dianping.cat.report.page.topGroup.transform.TopGroupMergeHelper</implementation>
 		</component>
 		<component>
 			<role>org.unidal.web.mvc.Module</role>

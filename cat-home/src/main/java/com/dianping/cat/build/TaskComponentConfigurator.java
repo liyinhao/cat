@@ -3,6 +3,10 @@ package com.dianping.cat.build;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dianping.cat.report.page.topGroup.service.TopGroupReportService;
+import com.dianping.cat.report.page.topGroup.task.TopGroupGraphCreator;
+import com.dianping.cat.report.page.topGroup.task.TopGroupMerger;
+import com.dianping.cat.report.page.topGroup.task.TopGroupReportBuilder;
 import org.unidal.lookup.configuration.AbstractResourceConfigurator;
 import org.unidal.lookup.configuration.Component;
 
@@ -120,10 +124,12 @@ public class TaskComponentConfigurator extends AbstractResourceConfigurator {
 		all.add(C(TransactionGraphCreator.class));
 		all.add(C(EventGraphCreator.class));
 		all.add(C(ProblemGraphCreator.class));
+		all.add(C(TopGroupGraphCreator.class));
 
 		all.add(C(TransactionMerger.class));
 		all.add(C(EventMerger.class));
 		all.add(C(ProblemMerger.class));
+		all.add(C(TopGroupMerger.class));
 
 		all.add(C(MetricPointParser.class));
 		all.add(C(BaselineCreator.class, DefaultBaselineCreator.class));
@@ -142,6 +148,10 @@ public class TaskComponentConfigurator extends AbstractResourceConfigurator {
 		all.add(C(TaskBuilder.class, EventReportBuilder.ID, EventReportBuilder.class) //
 		      .req(GraphDao.class, DailyGraphDao.class, EventReportService.class)//
 		      .req(EventReportService.class).req(EventGraphCreator.class, EventMerger.class));//
+
+		all.add(C(TaskBuilder.class, TopGroupReportBuilder.ID, TopGroupReportBuilder.class) //
+				.req(GraphDao.class, DailyGraphDao.class, TopGroupReportService.class)//
+				.req(TopGroupReportService.class).req(TopGroupGraphCreator.class, TopGroupMerger.class));//
 
 		all.add(C(TaskBuilder.class, ProblemReportBuilder.ID, ProblemReportBuilder.class) //
 		      .req(GraphDao.class, DailyGraphDao.class, ProblemReportService.class)//
@@ -227,6 +237,11 @@ public class TaskComponentConfigurator extends AbstractResourceConfigurator {
 
 		all.add(C(TaskBuilder.class, AppDatabasePruner.ID, AppDatabasePruner.class).req(AppCommandDataDao.class,
 		      AppSpeedDataDao.class, AppSpeedConfigManager.class, AppConfigManager.class));
+
+		all.add(C(TaskBuilder.class, NotifyTaskBuilder.ID, NotifyTaskBuilder.class)
+				.req(ReportRender.class, SenderManager.class).req(ProjectService.class)
+				.req(TransactionReportService.class, EventReportService.class, ProblemReportService.class,
+						TopGroupReportService.class));
 
 		all.add(C(CommandAutoCompleter.class).req(TransactionReportService.class, AppConfigManager.class));
 

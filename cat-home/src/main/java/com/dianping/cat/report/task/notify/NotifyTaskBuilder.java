@@ -25,6 +25,8 @@ import com.dianping.cat.report.page.problem.service.ProblemReportService;
 import com.dianping.cat.report.page.transaction.service.TransactionReportService;
 import com.dianping.cat.report.task.TaskBuilder;
 import com.dianping.cat.service.ProjectService;
+import com.dianping.cat.consumer.topGroup.model.entity.TopGroupReport;
+import com.dianping.cat.report.page.topGroup.service.TopGroupReportService;
 
 public class NotifyTaskBuilder implements TaskBuilder {
 
@@ -38,6 +40,9 @@ public class NotifyTaskBuilder implements TaskBuilder {
 	
 	@Inject
 	private ProblemReportService m_problemReportService;
+
+	@Inject
+	private TopGroupReportService m_topGroupReportService;
 
 	@Inject
 	private SenderManager m_sendManager;
@@ -60,6 +65,7 @@ public class NotifyTaskBuilder implements TaskBuilder {
 		TransactionReport transactionReport = m_transactionReportService.queryReport(domain, start, end);
 		EventReport eventReport = m_eventReportService.queryReport(domain, start, end);
 		ProblemReport problemReport = m_problemReportService.queryReport(domain, start, end);
+		TopGroupReport topGroupReport = m_topGroupReportService.queryReport(domain, start, end);
 
 		StringBuilder sb = new StringBuilder(10240);
 
@@ -67,6 +73,7 @@ public class NotifyTaskBuilder implements TaskBuilder {
 		sb.append(m_render.renderReport(transactionReport));
 		sb.append(m_render.renderReport(eventReport));
 		sb.append(m_render.renderReport(problemReport));
+		sb.append(m_render.renderReport(topGroupReport));
 		return sb.toString();
 	}
 

@@ -55,6 +55,7 @@
 								${basedir}/src/main/resources/META-INF/dal/model/heartbeat-report-manifest.xml,
 								${basedir}/src/main/resources/META-INF/dal/model/state-report-manifest.xml,
 								${basedir}/src/main/resources/META-INF/dal/model/top-report-manifest.xml,
+								${basedir}/src/main/resources/META-INF/dal/model/topGroup-report-manifest.xml,
 								${basedir}/src/main/resources/META-INF/dal/model/company-manifest.xml,
 								${basedir}/src/main/resources/META-INF/dal/model/cross-report-manifest.xml,
 								${basedir}/src/main/resources/META-INF/dal/model/matrix-report-manifest.xml,

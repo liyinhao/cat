@@ -3,17 +3,20 @@ package com.dianping.cat.report.task.notify;
 import java.io.StringWriter;
 import java.util.Map;
 
+import com.dianping.cat.report.task.notify.render.TopGroupRender;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 
 import com.dianping.cat.Cat;
 import com.dianping.cat.configuration.NetworkInterfaceManager;
 import com.dianping.cat.consumer.event.model.entity.EventReport;
+import com.dianping.cat.consumer.topGroup.model.entity.TopGroupReport;
 import com.dianping.cat.consumer.problem.model.entity.ProblemReport;
 import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;
 import com.dianping.cat.report.task.notify.render.EventRender;
 import com.dianping.cat.report.task.notify.render.ProblemRender;
 import com.dianping.cat.report.task.notify.render.TransactionRender;
+
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -45,6 +48,25 @@ public class ReportRenderImpl implements ReportRender, Initializable {
 
 		try {
 			Template t = m_configuration.getTemplate("event.ftl");
+
+			t.process(root, sw);
+		} catch (Exception e) {
+			Cat.logError(e);
+		}
+		return sw.toString();
+	}
+
+	@Override
+	public String renderReport(TopGroupReport report) {
+		//TODO
+		TopGroupRender entity = new TopGroupRender(report.getStartTime(), report.getDomain(), 1, m_ip);
+		entity.visitTopGroupReport(report);
+
+		Map<Object, Object> root = entity.getRenderResult();
+		StringWriter sw = new StringWriter(5000);
+
+		try {
+			Template t = m_configuration.getTemplate("topGroup.ftl");
 
 			t.process(root, sw);
 		} catch (Exception e) {

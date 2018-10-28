@@ -3,6 +3,11 @@ package com.dianping.cat.build;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dianping.cat.consumer.topGroup.TopGroupAnalyzer;
+import com.dianping.cat.report.page.topGroup.service.CompositeTopGroupService;
+import com.dianping.cat.report.page.topGroup.service.HistoricalTopGroupService;
+import com.dianping.cat.report.page.topGroup.service.LocalTopGroupService;
+import com.dianping.cat.report.page.topGroup.service.TopGroupReportService;
 import org.unidal.lookup.configuration.AbstractResourceConfigurator;
 import org.unidal.lookup.configuration.Component;
 
@@ -97,6 +102,14 @@ class ServiceComponentConfigurator extends AbstractResourceConfigurator {
 		all.add(C(ModelService.class, EventAnalyzer.ID, CompositeEventService.class) //
 		      .req(ServerConfigManager.class) //
 		      .req(ModelService.class, new String[] { "event-historical" }, "m_services"));
+
+		all.add(C(LocalModelService.class, LocalTopGroupService.ID, LocalTopGroupService.class) //
+				.req(ReportBucketManager.class, MessageConsumer.class, ServerConfigManager.class));
+		all.add(C(ModelService.class, "topGroup-historical", HistoricalTopGroupService.class) //
+				.req(TopGroupReportService.class, ServerConfigManager.class));
+		all.add(C(ModelService.class, TopGroupAnalyzer.ID, CompositeTopGroupService.class) //
+				.req(ServerConfigManager.class) //
+				.req(ModelService.class, new String[] { "topGroup-historical" }, "m_services"));
 
 		all.add(C(LocalModelService.class, LocalProblemService.ID, LocalProblemService.class) //
 		      .req(ReportBucketManager.class, MessageConsumer.class, ServerConfigManager.class));
