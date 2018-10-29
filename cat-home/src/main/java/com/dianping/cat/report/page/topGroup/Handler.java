@@ -290,7 +290,7 @@ public class Handler implements PageHandler<Context> {
 	}
 
 	private void normalize(Model model, Payload payload) {
-		model.setPage(ReportPage.EVENT);
+		model.setPage(ReportPage.TopGroup);
 		model.setAction(payload.getAction());
 
 		m_normalizePayload.normalize(model, payload);

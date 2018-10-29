@@ -10,7 +10,7 @@
 <c:set var="report" value="${model.report}" />
 
 <a:report
-	title="Event Report${empty payload.type ? '' : ' :: '}<a href='?domain=${model.domain}&date=${model.date}&type=${payload.type}'>${payload.type}</a>"
+	title="TopGroup Report${empty payload.type ? '' : ' :: '}<a href='?domain=${model.domain}&date=${model.date}&type=${payload.type}'>${payload.type}</a>"
 	navUrlPrefix="ip=${model.ipAddress}&queryname=${model.queryName}&domain=${model.domain}${empty payload.encodedType ? '' : '&type='}${payload.encodedType}"
 	timestamp="${w:format(model.creatTime,'yyyy-MM-dd HH:mm:ss')}">
 
@@ -50,7 +50,6 @@
 	});
 
  	 $('.position').hide();
-     $('.switch').hide();
      $('#Dashboard_report').addClass('active open');
      $('#dashbord_topGroup').addClass('active');
 
@@ -67,93 +66,36 @@
 	</tr>
 </table>
 <table class='table table-hover table-striped table-condensed ' style="width:100%;">
-	<c:choose>
-		<c:when test="${empty payload.type}">
-			<tr>
-			<th class="left"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&sort=type">App</a></th>
-			<th class="right"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&sort=total">Total</a></th>
-			<th class="right"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&sort=failure">Failure</a></th>
-			<th class="right"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&sort=failurePercent">Failure%</a></th>
-			<th class="right">Detail Link</th>
-			</tr>
-			<c:forEach var="item" items="${model.displayTypeReport.results}" varStatus="status">
-				<c:set var="e" value="${item.detail}" />
-				<c:set var="lastIndex" value="${status.index}" />
-				<tr class="right">
-					<td class="left">
-						<a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&sort=type"><a href="?op=graphs&domain=${model.domain}&date=${model.date}&type=${item.type}&ip=${model.ipAddress}" class="graph_link" data-status="${status.index}">[:: show ::]</a>
-						&nbsp;&nbsp;${item.detail.id}</a>
-					</td>
-					<td>${w:format(e.totalCount,'#,###,###,###,##0')}</td>
-					<td>${w:format(e.failCount,'#,###,###,###,##0')}</td>
-					<td>&nbsp;${w:format(e.failPercent/100,'0.0000%')}</td>
+	<tr>
+	<th class="left"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&sort=type">App</a></th>
+	<th class="right"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&sort=total">Total</a></th>
+	<th class="right"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&sort=failure">Failure</a></th>
+	<th class="right"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&sort=failurePercent">Failure%</a></th>
+	<th class="right">Detail Link</th>
+	</tr>
+	<c:forEach var="item" items="${model.displayTypeReport.results}" varStatus="status">
+		<c:set var="e" value="${item.detail}" />
+		<c:set var="lastIndex" value="${status.index}" />
+		<tr class="right">
+			<td class="left">
+				<a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&sort=type"><a href="?op=graphs&domain=${model.domain}&date=${model.date}&type=${item.type}&ip=${model.ipAddress}" class="graph_link" data-status="${status.index}">[:: show ::]</a>
+				&nbsp;&nbsp;${item.detail.id}</a>
+			</td>
+			<td>${w:format(e.totalCount,'#,###,###,###,##0')}</td>
+			<td>${w:format(e.failCount,'#,###,###,###,##0')}</td>
+			<td>&nbsp;${w:format(e.failPercent/100,'0.0000%')}</td>
 <td><a href="/cat/r/p/domain=${report.domain}&date=${model.date}">detail</a></td>
-				</tr>
-				<tr class="graphs">
-					<td colspan="7" style="display:none"><div id="${status.index}" style="display: none"></div></td>
-				</tr>
-				<tr></tr>
-			</c:forEach>
-		</c:when>
-		<c:otherwise>
-		    <tr><th class="left" colspan="13"><input type="text" name="queryname" id="queryname" size="40" value="${model.queryName}">
-        		    <input  class="btn btn-primary  btn-sm"  value="Filter" onclick="selectByName('${model.date}','${model.domain}','${model.ipAddress}','${payload.type}')" type="submit">
-        			支持多个字符串查询，例如sql|url|task，查询结果为包含任一sql、url、task的列。
-        	</th></tr>
-			<tr>
-			<th class="left"><a href="?op=graphs&domain=${model.domain}&date=${model.date}&type=${payload.encodedType}&ip=${model.ipAddress}" class="graph_link" data-status="-1">[:: show ::]</a>
-			<a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&type=${payload.type}&sort=type&queryname=${model.queryName}"> Name</a></th>
-			<th class="right"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&type=${payload.encodedType}&sort=total&queryname=${model.queryName}">Total</a></th>
-			<th class="right"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&type=${payload.encodedType}&sort=failure&queryname=${model.queryName}">Failure</a></th>
-			<th class="right"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&type=${payload.encodedType}&sort=failurePercent&queryname=${model.queryName}">Failure%</a></th>
-			<th class="center">Sample Link</th>
-			<th class="right"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&type=${payload.encodedType}&sort=total&queryname=${model.queryName}">QPS</a></th>
-			<th class="right"><a href="?domain=${model.domain}&date=${model.date}&ip=${model.ipAddress}&type=${payload.encodedType}&sort=total&queryname=${model.queryName}">Percent%</a></th>
-			</tr>
-			<tr class="graphs"><td colspan="7" style="display:none"><div id="-1" style="display: none"></div></td></tr>
-			<c:forEach var="item" items="${model.displayNameReport.results}" varStatus="status">
-				<c:set var="e" value="${item.detail}" />
-				<c:set var="lastIndex" value="${status.index}" />
-				<tr class=" right">
-					<td class="left">
-					<c:choose>
-					<c:when test="${status.index > 0}">
-						<a	href="?op=graphs&domain=${report.domain}&ip=${model.ipAddress}&date=${model.date}&type=${payload.encodedType}&name=${item.name}" class="graph_link" data-status="${status.index}">[:: show ::]</a>
-					</c:when>
-					</c:choose>
-					&nbsp;&nbsp;${e.id}
-					</td>
-					<td>${w:format(e.totalCount,'#,###,###,###,##0')}</td>
-					<td>${w:format(e.failCount,'#,###,###,###,##0')}</td>
-					<td>&nbsp;${w:format(e.failPercent/100,'0.0000%')}</td>
-					<td class="center"><a href="/cat/r/m/${empty e.failMessageUrl ? e.successMessageUrl : e.failMessageUrl}?domain=${model.domain}">Log View</a></td>
-					<td>${w:format(e.tps,'0.0')}</td>
-					<td>${w:format(e.totalPercent,'0.0000%')}</td>
-				</tr>
-				<tr class="graphs">
-					<td colspan="7" style="display:none"><div id="${status.index}" style="display: none"></div></td>
-				</tr><tr></tr>
-			</c:forEach>
-		</c:otherwise>
-	</c:choose>
+		</tr>
+		<tr class="graphs">
+			<td colspan="7" style="display:none"><div id="${status.index}" style="display: none"></div></td>
+		</tr>
+		<tr></tr>
+	</c:forEach>
+
 </table>
 
 <font color="white">${lastIndex+1}</font>
-<res:useJs value="${res.js.local.event_js}" target="bottom-js" />
-<c:choose>
-	<c:when test="${not empty payload.type}">
-		<table>
-			<tr>
-				<td><div id="eventGraph" class="pieChart"></div>
-				</td>
-			</tr>
-		</table>
-		<script type="text/javascript">
-			var data = ${model.pieChart};
-			graphPieChart(document.getElementById('eventGraph'), data );
-		</script>
-	</c:when>
-</c:choose>
+<res:useJs value="${res.js.local.topGroup_js}" target="bottom-js" />
 
 </jsp:body>
 </a:report>
